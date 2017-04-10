@@ -71,9 +71,20 @@ func (s *UnitTests) TestCPrinter_initColumn() {
 }
 
 func (s *UnitTests) TestFprint() {
-	data := []simpleStruct{{Name: "name", Description: "description", Version:float32(35)}, {Name: "Navn", Description: "beskrivelse"}}
+	persons := []Person{
+		{
+			FirstName: "Ola",
+			LastName:  "Nordmann",
+			Age:        35,
+		},
+		{
+			FirstName: "Kari",
+			LastName:  "Nordmann",
+			Age:        37,
+		},
+	}
 	s.NotPanics(func() {
-		Print(data)
+		Print(persons)
 	})
 
 
@@ -89,4 +100,10 @@ type simpleStruct struct {
 	Valid       bool `column:"Valid"`
 	Age         int `column:"Age,1"`
 	Version float32 `column:"Version,2"`
+}
+
+type Person struct {
+	FirstName string `column:"First name,1"`
+	LastName string  `column:"Last name,2"`
+	Age int          `column:"Age,3"`
 }
