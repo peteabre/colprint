@@ -170,6 +170,7 @@ func (cp *cPrinter) valueOf(i interface{}) string {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return strconv.FormatInt(v.Int(), 10)
 	case reflect.Array, reflect.Slice:
+		return cp.valueOfSlice(i)
 	case reflect.Bool:
 		return strconv.FormatBool(v.Bool())
 	case reflect.Float32, reflect.Float64:
@@ -178,4 +179,16 @@ func (cp *cPrinter) valueOf(i interface{}) string {
 		return v.String()
 	}
 	return ""
+}
+
+func (cp *cPrinter) valueOfSlice(s interface{}) string {
+	sliceValue := reflect.ValueOf(s)
+	values:=""
+	for i := 0; i < sliceValue.Len(); i++ {
+		values+= cp.valueOf(sliceValue.Index(i).Interface())
+		if i < sliceValue.Len() -1 {
+			values +=", "
+		}
+	}
+	return values
 }

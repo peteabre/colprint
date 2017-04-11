@@ -76,17 +76,19 @@ func (s *UnitTests) TestFprint() {
 			FirstName: "Ola",
 			LastName:  "Nordmann",
 			Age:        35,
+			Groups: []string{"group1", "group2", "group3"},
 		},
 		{
 			FirstName: "Kari",
 			LastName:  "Nordmann",
 			Age:        37,
+			Groups: []string{"group1", "group2", "group3"},
 		},
 	}
+
 	s.NotPanics(func() {
 		Print(persons)
 	})
-
 
 	d := simpleStruct{Name: "name", Description: "description", Version:float32(35)}
 	s.NotPanics(func() {
@@ -106,4 +108,5 @@ type Person struct {
 	FirstName string `colprint:"First name,1"`
 	LastName string  `colprint:"Last name,2"`
 	Age int          `colprint:"Age,3"`
+	Groups []string  `colprint:"Groups,4"`
 }
