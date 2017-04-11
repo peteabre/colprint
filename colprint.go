@@ -14,14 +14,27 @@ import (
 
 const TagName = "colprint"
 
-// Print struct or slice of struct to stdout
-func Print(s interface{}) error {
-	return Fprint(os.Stdout, s)
+type Config struct {
+	MaxPrintedSliceItems *int
+	FloatPrecision       *int
+}
+
+func DefaultPrint(s interface{}) {
+	Print(s, nil)
+}
+
+func DefaultFprint(w io.Writer, s interface{}) {
+	Fprint(w, s, nil)
+}
+
+// Print prints struct or slice of structs to stdout
+func Print(s interface{}, c *Config) error {
+	return Fprint(os.Stdout, s, c)
 }
 
 // Fprint prints struct or slice to provided Writer. Takes a Writer and a interface as arguments.
-func Fprint(w io.Writer, s interface{}) error {
-	cp := cPrinter{}
+func Fprint(w io.Writer, s interface{}, c *Config) error {
+	cp := cPrinter{config: mergeConfig(createDefaultConfig(), c)}
 	kind := reflect.TypeOf(s).Kind()
 	val := reflect.ValueOf(s)
 
@@ -74,6 +87,8 @@ type cPrinter struct {
 	values map[column][]string
 	// Keeps track of number of items appended to the ColPrinter
 	itemCount int
+	// Configuration for the printer
+	config *Config
 }
 
 func (cp *cPrinter) add(s interface{}) error {
@@ -174,7 +189,7 @@ func (cp *cPrinter) valueOf(i interface{}) string {
 	case reflect.Bool:
 		return strconv.FormatBool(v.Bool())
 	case reflect.Float32, reflect.Float64:
-		return strconv.FormatFloat(v.Float(), 'f', 2, 64)
+		return strconv.FormatFloat(v.Float(), 'f', *cp.config.FloatPrecision, 64)
 	case reflect.String:
 		return v.String()
 	}
@@ -183,12 +198,37 @@ func (cp *cPrinter) valueOf(i interface{}) string {
 
 func (cp *cPrinter) valueOfSlice(s interface{}) string {
 	sliceValue := reflect.ValueOf(s)
-	values:=""
+	values := ""
 	for i := 0; i < sliceValue.Len(); i++ {
-		values+= cp.valueOf(sliceValue.Index(i).Interface())
-		if i < sliceValue.Len() -1 {
-			values +=", "
+		values += cp.valueOf(sliceValue.Index(i).Interface())
+		if i == *cp.config.MaxPrintedSliceItems-1 && sliceValue.Len() > *cp.config.MaxPrintedSliceItems {
+			values += ",..."
+			break
+		} else if i < sliceValue.Len()-1 {
+			values += ", "
 		}
 	}
 	return values
+}
+
+func createDefaultConfig() *Config {
+	dMPSI := 3
+	dFP := 2
+	return &Config{
+		MaxPrintedSliceItems: &dMPSI,
+		FloatPrecision:       &dFP,
+	}
+}
+
+func mergeConfig(a, c *Config) *Config {
+	if c != nil {
+		if c.MaxPrintedSliceItems != nil {
+			*a.MaxPrintedSliceItems = *c.MaxPrintedSliceItems
+		}
+
+		if c.FloatPrecision != nil {
+			*a.FloatPrecision = *c.FloatPrecision
+		}
+	}
+	return a
 }

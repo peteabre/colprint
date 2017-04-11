@@ -31,7 +31,7 @@ func (s *UnitTests) TestColumns_Swap() {
 	cols[0] = col1
 	cols[1] = col2
 
-	cols.Swap(0,1)
+	cols.Swap(0, 1)
 	s.True(cols[0] == col2)
 	s.True(cols[1] == col1)
 }
@@ -42,12 +42,12 @@ func (s *UnitTests) TestColumns_Less() {
 	col2 := column{FieldName: "Name2", Label: "Label2", Order: 20}
 	cols[0] = col1
 	cols[1] = col2
-	s.True(cols.Less(0,1))
-	s.False(cols.Less(1,0))
+	s.True(cols.Less(0, 1))
+	s.False(cols.Less(1, 0))
 
-	cols[0].Order=20
-	s.False(cols.Less(0,1))
-	s.False(cols.Less(1,0))
+	cols[0].Order = 20
+	s.False(cols.Less(0, 1))
+	s.False(cols.Less(1, 0))
 }
 
 func (s *UnitTests) TestCPrinter_init() {
@@ -70,29 +70,47 @@ func (s *UnitTests) TestCPrinter_initColumn() {
 	s.NotNil(val)
 }
 
-func (s *UnitTests) TestFprint() {
+func (s *UnitTests) TestMergeConfig() {
+	defaultConf := createDefaultConfig()
+
+	mergedConf := mergeConfig(defaultConf, &Config{})
+	s.Equal(*defaultConf.FloatPrecision, *mergedConf.FloatPrecision)
+	s.Equal(*defaultConf.MaxPrintedSliceItems, *mergedConf.MaxPrintedSliceItems)
+
+	mpsli := 10
+	mergedConf = mergeConfig(defaultConf, &Config{MaxPrintedSliceItems: &mpsli})
+	s.Equal(*defaultConf.FloatPrecision, *mergedConf.FloatPrecision)
+	s.Equal(mpsli, *mergedConf.MaxPrintedSliceItems)
+
+	fp := 10
+	mergedConf = mergeConfig(defaultConf, &Config{FloatPrecision: &fp})
+	s.Equal(fp, *mergedConf.FloatPrecision)
+	s.Equal(*defaultConf.MaxPrintedSliceItems, *mergedConf.MaxPrintedSliceItems)
+}
+
+func (s *UnitTests) TestDefaultPrint() {
 	persons := []Person{
 		{
 			FirstName: "Ola",
 			LastName:  "Nordmann",
-			Age:        35,
-			Groups: []string{"group1", "group2", "group3"},
+			Age:       35,
+			Groups:    []string{"group1", "group2", "group3", "group4"},
 		},
 		{
 			FirstName: "Kari",
 			LastName:  "Nordmann",
-			Age:        37,
-			Groups: []string{"group1", "group2", "group3"},
+			Age:       37,
+			Groups:    []string{"group1", "group2", "group3"},
 		},
 	}
 
 	s.NotPanics(func() {
-		Print(persons)
+		DefaultPrint(persons)
 	})
 
-	d := simpleStruct{Name: "name", Description: "description", Version:float32(35)}
+	d := simpleStruct{Name: "name", Description: "description", Version: float32(35)}
 	s.NotPanics(func() {
-		Print(d)
+		DefaultPrint(d)
 	})
 }
 
@@ -101,12 +119,12 @@ type simpleStruct struct {
 	Description string `colprint:"Tittentei"`
 	Valid       bool `colprint:"Valid"`
 	Age         int `colprint:"Age,1"`
-	Version float32 `colprint:"Version,2"`
+	Version     float32 `colprint:"Version,2"`
 }
 
 type Person struct {
 	FirstName string `colprint:"First name,1"`
-	LastName string  `colprint:"Last name,2"`
-	Age int          `colprint:"Age,3"`
-	Groups []string  `colprint:"Groups,4"`
+	LastName  string  `colprint:"Last name,2"`
+	Age       int          `colprint:"Age,3"`
+	Groups    []string  `colprint:"Groups,4"`
 }
