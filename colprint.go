@@ -12,7 +12,7 @@ import (
 	"github.com/ryanuber/columnize"
 )
 
-const TagName = "column"
+const TagName = "colprint"
 
 // Print struct or slice of struct to stdout
 func Print(s interface{}) error {

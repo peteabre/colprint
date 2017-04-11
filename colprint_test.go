@@ -95,15 +95,15 @@ func (s *UnitTests) TestFprint() {
 }
 
 type simpleStruct struct {
-	Name        string `column:"Name,3"`
-	Description string `column:"Tittentei"`
-	Valid       bool `column:"Valid"`
-	Age         int `column:"Age,1"`
-	Version float32 `column:"Version,2"`
+	Name        string `colprint:"Name,3"`
+	Description string `colprint:"Tittentei"`
+	Valid       bool `colprint:"Valid"`
+	Age         int `colprint:"Age,1"`
+	Version float32 `colprint:"Version,2"`
 }
 
 type Person struct {
-	FirstName string `column:"First name,1"`
-	LastName string  `column:"Last name,2"`
-	Age int          `column:"Age,3"`
+	FirstName string `colprint:"First name,1"`
+	LastName string  `colprint:"Last name,2"`
+	Age int          `colprint:"Age,3"`
 }
