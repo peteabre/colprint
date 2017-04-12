@@ -3,6 +3,9 @@ Colprint
 
 Easy column formatted printing of structs and slices/arrays of structs in golang.
 
+[![Build Status](https://travis-ci.org/peteabre/colprint.svg)](https://travis-ci.org/peteabre/colprint)
+[![GoDoc](https://godoc.org/github.com/peteabre/colprint?status.svg)](https://godoc.org/github.com/peteabre/colprint)
+
 Colprint is a small go package to help build CLI appliactions where you want to list items in 
 human readable form in formatted columns. Colprint builds on [Columnize](https://github.com/ryanuber/columnize) and adds functionality to easy print structs and 
 slices/arrays of structs.
@@ -42,7 +45,6 @@ As you can see you can simply pass a slice/array and the result will be:
 First name  Last name  Age
 Ola         Nordmann   35
 Kari        Nordmann   37
-
 ```
 
 Limitations
