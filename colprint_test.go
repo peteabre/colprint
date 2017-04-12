@@ -139,7 +139,8 @@ func (s *UnitTests) TestDefaultPrint() {
 }
 
 func (s *UnitTests) TestDefaultFPrint() {
-	d := DummyData{Name: "name", Description: "description", Version: float32(35)}
+	age := 40
+	d := DummyData{Age: &age, Name: "name", Description: "description", Version: float32(35)}
 	s.NotPanics(func() {
 		s.NoError(DefaultFprint(os.Stdout, d))
 	})
@@ -158,17 +159,17 @@ type DummyData struct {
 	Name        string  `colprint:"Name,3"`
 	Description string  `colprint:"Description"`
 	Valid       bool    `colprint:"Valid"`
-	Age         int     `colprint:"Age,1"`
+	Age         *int    `colprint:"Age,1"`
 	Version     float32 `colprint:"Version,2"`
 }
 
 type Person struct {
-	FirstName string   `colprint:"First name,1"`
-	LastName  string   `colprint:"Last name,2"`
-	Age       int      `colprint:"Age,3"`
-	Groups    []string `colprint:"Groups,4"`
-	Address   string   `colprint:""`
-	Address2  string   `colprint:"-"`
-	Spouse    *Person  `colprint:"Spouse"`
-	Data DummyData	   `colprint:"Data"`
+	FirstName string    `colprint:"First name,1"`
+	LastName  string    `colprint:"Last name,2"`
+	Age       int       `colprint:"Age,3"`
+	Groups    []string  `colprint:"Groups,4"`
+	Address   string    `colprint:""`
+	Address2  string    `colprint:"-"`
+	Spouse    *Person   `colprint:"Spouse"`
+	Data      DummyData `colprint:"Data"`
 }

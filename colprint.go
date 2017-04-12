@@ -201,6 +201,11 @@ func (cp *cPrinter) valueOf(i interface{}) string {
 		return strconv.FormatFloat(v.Float(), 'f', *cp.config.FloatPrecision, 64)
 	case reflect.String:
 		return v.String()
+	case reflect.Ptr:
+		if v.IsNil(){
+			return ""
+		}
+		return cp.valueOf(reflect.Indirect(v).Interface())
 	}
 	return "<Unsupported kind:"+kind.String()+">"
 }
