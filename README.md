@@ -32,7 +32,7 @@ func main()  {
                         Age:        37,
                 },
          }
-         colprint.Print(persons)
+         colprint.Print(persons, nil)
 }
 ```
 
@@ -47,4 +47,5 @@ Kari        Nordmann   37
 
 Limitations
 ===========
-Supports only fields of primitive types.
+* Supports only fields of primitive types.
+* Doesn't support pointer fields (work in progress). 
