@@ -3,6 +3,8 @@ package colprint
 import (
 	"github.com/stretchr/testify/suite"
 	"testing"
+	"os"
+	"errors"
 )
 
 type UnitTests struct {
@@ -70,6 +72,20 @@ func (s *UnitTests) TestCPrinter_initColumn() {
 	s.NotNil(val)
 }
 
+func (s *UnitTests) TestCPrinter_add() {
+	cp := cPrinter{config: createDefaultConfig()}
+	d := DummyData{Name: "name", Description: "description", Version: float32(35)}
+	s.NotPanics(func() {
+		s.NoError(cp.add(d))
+	})
+
+	cp = cPrinter{config: createDefaultConfig()}
+	e := Errornous{Error: errors.New("Error")}
+	s.NotPanics(func() {
+		s.Error(cp.add(e))
+	})
+}
+
 func (s *UnitTests) TestMergeConfig() {
 	defaultConf := createDefaultConfig()
 
@@ -88,6 +104,15 @@ func (s *UnitTests) TestMergeConfig() {
 	s.Equal(*defaultConf.MaxPrintedSliceItems, *mergedConf.MaxPrintedSliceItems)
 }
 
+func (s *UnitTests) TestCreateDefaultConfig() {
+	c := createDefaultConfig()
+	s.NotNil(c)
+	s.NotNil(c.MaxPrintedSliceItems)
+	s.NotNil(c.FloatPrecision)
+	s.Equal(2, *c.FloatPrecision)
+	s.Equal(3, *c.MaxPrintedSliceItems)
+}
+
 func (s *UnitTests) TestDefaultPrint() {
 	persons := []Person{
 		{
@@ -103,28 +128,47 @@ func (s *UnitTests) TestDefaultPrint() {
 			Groups:    []string{"group1", "group2", "group3"},
 		},
 	}
-
 	s.NotPanics(func() {
-		DefaultPrint(persons)
+		s.NoError(DefaultPrint(persons))
 	})
 
-	d := simpleStruct{Name: "name", Description: "description", Version: float32(35)}
+	errs := []Errornous{{Error: errors.New("Error")}}
 	s.NotPanics(func() {
-		DefaultPrint(d)
+		s.Error(DefaultPrint(errs))
 	})
 }
 
-type simpleStruct struct {
-	Name        string `colprint:"Name,3"`
-	Description string `colprint:"Tittentei"`
-	Valid       bool `colprint:"Valid"`
-	Age         int `colprint:"Age,1"`
+func (s *UnitTests) TestDefaultFPrint() {
+	d := DummyData{Name: "name", Description: "description", Version: float32(35)}
+	s.NotPanics(func() {
+		s.NoError(DefaultFprint(os.Stdout, d))
+	})
+
+	err := Errornous{Error: errors.New("Error")}
+	s.NotPanics(func() {
+		s.Error(DefaultFprint(os.Stdout, err))
+	})
+}
+
+type Errornous struct {
+	Error error `colprint:"Error,a"`
+}
+
+type DummyData struct {
+	Name        string  `colprint:"Name,3"`
+	Description string  `colprint:"Description"`
+	Valid       bool    `colprint:"Valid"`
+	Age         int     `colprint:"Age,1"`
 	Version     float32 `colprint:"Version,2"`
 }
 
 type Person struct {
-	FirstName string `colprint:"First name,1"`
-	LastName  string  `colprint:"Last name,2"`
-	Age       int          `colprint:"Age,3"`
-	Groups    []string  `colprint:"Groups,4"`
+	FirstName string   `colprint:"First name,1"`
+	LastName  string   `colprint:"Last name,2"`
+	Age       int      `colprint:"Age,3"`
+	Groups    []string `colprint:"Groups,4"`
+	Address   string   `colprint:""`
+	Address2  string   `colprint:"-"`
+	Spouse    *Person  `colprint:"Spouse"`
+	Data DummyData	   `colprint:"Data"`
 }
