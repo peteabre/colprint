@@ -96,6 +96,7 @@ type cPrinter struct {
 	// Configuration for the printer
 	config *Config
 }
+
 // add adds a struct columns and values
 func (cp *cPrinter) add(s interface{}) error {
 	// Init columns if it's not already done
@@ -148,11 +149,13 @@ func (cp *cPrinter) fprint(w io.Writer) {
 	// Print to given Writer
 	fmt.Fprint(w, columnize.SimpleFormat(str)+"\n")
 }
+
 // init initializes the array containing columns, and the map containing the values for each column.
 func (cp *cPrinter) init() {
 	cp.cols = make([]column, 0)
 	cp.values = make(map[column][]string)
 }
+
 // initColumn initializes the array containing column values.
 func (cp *cPrinter) initColumn(col column) {
 	cp.values[col] = make([]string, 0)
@@ -202,13 +205,14 @@ func (cp *cPrinter) valueOf(i interface{}) string {
 	case reflect.String:
 		return v.String()
 	case reflect.Ptr:
-		if v.IsNil(){
+		if v.IsNil() {
 			return ""
 		}
 		return cp.valueOf(reflect.Indirect(v).Interface())
 	}
-	return "<Unsupported kind:"+kind.String()+">"
+	return "<Unsupported kind:" + kind.String() + ">"
 }
+
 // valueOfSlice returns a string representation of the values in a slice field.
 // Returns a maximum of Config.MaxPrintedSliceItems.
 func (cp *cPrinter) valueOfSlice(s interface{}) string {
@@ -225,6 +229,7 @@ func (cp *cPrinter) valueOfSlice(s interface{}) string {
 	}
 	return values
 }
+
 // createDefaultConfig creates a default configuration.
 func createDefaultConfig() *Config {
 	dMPSI := 3
@@ -234,6 +239,7 @@ func createDefaultConfig() *Config {
 		FloatPrecision:       &dFP,
 	}
 }
+
 // mergeConfig merges the second argument config into the first.
 func mergeConfig(a, c *Config) *Config {
 	if c != nil {
