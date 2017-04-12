@@ -7,7 +7,7 @@ Colprint is a small go package to help build CLI appliactions where you want to 
 human readable form in formatted columns. Colprint builds on [Columnize](https://github.com/ryanuber/columnize) and adds functionality to easy print structs and 
 slices/arrays of structs.
 
-Example:
+Small example:
 ```go
 package main
 
