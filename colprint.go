@@ -22,30 +22,24 @@ type Config struct {
 	FloatPrecision *int
 }
 
-// DefaultPrint prints struct or slice of struct using default config
-func DefaultPrint(s interface{}) error {
-	return Print(s, nil)
+// Print prints a struct or slice of structs to stdout using default config
+func Print(s interface{}) error {
+	return Fprint(os.Stdout, s)
 }
 
-// DefaultFprint prints struct or slice to provided Writer using provided config.
-func DefaultFprint(w io.Writer, s interface{}) error {
-	return Fprint(w, s, nil)
-}
-
-// Print prints struct or slice of structs to stdout using provided Config
-func Print(s interface{}, c *Config) error {
-	return Fprint(os.Stdout, s, c)
-}
-
-// Fprint prints struct or slice to provided Writer using provided config.
+// Fprint prints struct or slice to provided io.Writer using provided config.
 // If config is nil, default config will be used.
-func Fprint(w io.Writer, s interface{}, c *Config) error {
-	cp := cPrinter{config: mergeConfig(createDefaultConfig(), c)}
+func Fprint(w io.Writer, s interface{}, c... *Config) error {
+	var conf *Config
+	if len(c) > 0 {
+		conf = c[0]
+	}
+	cp := cPrinter{config: mergeConfig(createDefaultConfig(), conf)}
 	kind := reflect.TypeOf(s).Kind()
-	val := reflect.ValueOf(s)
 
 	// Check if s is a slice/array or not
 	if kind == reflect.Slice || kind == reflect.Array {
+		val := reflect.ValueOf(s)
 		// add each item in slice to cPrinter
 		for i := 0; i < val.Len(); i ++ {
 			if err := cp.add(val.Index(i).Interface()); err != nil {

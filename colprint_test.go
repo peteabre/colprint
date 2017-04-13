@@ -113,7 +113,7 @@ func (s *UnitTests) TestCreateDefaultConfig() {
 	s.Equal(3, *c.MaxPrintedSliceItems)
 }
 
-func (s *UnitTests) TestDefaultPrint() {
+func (s *UnitTests) TestPrint() {
 	persons := []Person{
 		{
 			FirstName: "Ola",
@@ -129,25 +129,28 @@ func (s *UnitTests) TestDefaultPrint() {
 		},
 	}
 	s.NotPanics(func() {
-		s.NoError(DefaultPrint(persons))
+		s.NoError(Print(persons))
 	})
 
 	errs := []Errornous{{Error: errors.New("Error")}}
 	s.NotPanics(func() {
-		s.Error(DefaultPrint(errs))
+		s.Error(Print(errs))
 	})
 }
 
-func (s *UnitTests) TestDefaultFPrint() {
+func (s *UnitTests) TestFPrint() {
 	age := 40
 	d := DummyData{Age: &age, Name: "name", Description: "description", Version: float32(35)}
+
+	fp := 5
+
 	s.NotPanics(func() {
-		s.NoError(DefaultFprint(os.Stdout, d))
+		s.NoError(Fprint(os.Stdout, d, &Config{FloatPrecision: &fp}))
 	})
 
 	err := Errornous{Error: errors.New("Error")}
 	s.NotPanics(func() {
-		s.Error(DefaultFprint(os.Stdout, err))
+		s.Error(Fprint(os.Stdout, err))
 	})
 }
 

@@ -35,7 +35,7 @@ func main()  {
                         Age:        37,
                 },
          }
-         colprint.Print(persons, nil)
+         colprint.Print(persons)
 }
 ```
 
