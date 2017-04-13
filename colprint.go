@@ -65,9 +65,9 @@ func Fprint(w io.Writer, s interface{}, c *Config) error {
 
 // column represents a column that will be printed by cPrinter
 type column struct {
-	FieldName string
-	Label     string
-	Order     int
+	fieldName string
+	label     string
+	order     int
 }
 
 // columns is a sortable list of column structs
@@ -78,7 +78,7 @@ func (s columns) Len() int {
 }
 
 func (s columns) Less(i, j int) bool {
-	return s[i].Order < s[j].Order
+	return s[i].order < s[j].order
 }
 
 func (s columns) Swap(i, j int) {
@@ -115,7 +115,7 @@ func (cp *cPrinter) add(s interface{}) error {
 	// Add values
 	for _, col := range cp.cols {
 		v := reflect.ValueOf(s)
-		val := cp.valueOf(v.FieldByName(col.FieldName).Interface())
+		val := cp.valueOf(v.FieldByName(col.fieldName).Interface())
 		cp.values[col] = append(cp.values[col], val)
 	}
 	cp.itemCount++
@@ -128,7 +128,7 @@ func (cp *cPrinter) fprint(w io.Writer) {
 	str := []string{}
 	headers := ""
 	for i, col := range cp.cols {
-		headers += col.Label
+		headers += col.label
 		if i != len(cp.cols)-1 {
 			headers += "|"
 		}

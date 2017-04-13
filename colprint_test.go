@@ -28,8 +28,8 @@ func (s *UnitTests) TestColumns_Len() {
 
 func (s *UnitTests) TestColumns_Swap() {
 	cols := make(columns, 2)
-	col1 := column{FieldName: "Name1", Label: "Label1", Order: 1}
-	col2 := column{FieldName: "Name2", Label: "Label2", Order: 2}
+	col1 := column{fieldName: "Name1", label: "Label1", order: 1}
+	col2 := column{fieldName: "Name2", label: "Label2", order: 2}
 	cols[0] = col1
 	cols[1] = col2
 
@@ -40,14 +40,14 @@ func (s *UnitTests) TestColumns_Swap() {
 
 func (s *UnitTests) TestColumns_Less() {
 	cols := make(columns, 2)
-	col1 := column{FieldName: "Name1", Label: "Label1", Order: 10}
-	col2 := column{FieldName: "Name2", Label: "Label2", Order: 20}
+	col1 := column{fieldName: "Name1", label: "Label1", order: 10}
+	col2 := column{fieldName: "Name2", label: "Label2", order: 20}
 	cols[0] = col1
 	cols[1] = col2
 	s.True(cols.Less(0, 1))
 	s.False(cols.Less(1, 0))
 
-	cols[0].Order = 20
+	cols[0].order = 20
 	s.False(cols.Less(0, 1))
 	s.False(cols.Less(1, 0))
 }
