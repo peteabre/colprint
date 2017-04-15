@@ -10,7 +10,27 @@ Colprint is a small Go package to help build CLI appliactions where you want to 
 human readable form in formatted columns. Colprint builds on [Columnize](https://github.com/ryanuber/columnize), and adds functionality to easy print structs and 
 slices/arrays of structs. You just have have to add the colprint tag to the fields you want to print.
 
-Small example:
+Installation
+============
+Using Colprint is easy. First, use go get to install the latest version of the library. 
+```bash
+$ go get github.com/peteabre/colprint
+```
+
+Next, include Colprint in your application:
+```go
+import "github.com/peteabre/colprint"
+```
+
+Getting started
+===============
+After installing the library and including it in you application, simply tag your structs and
+pass them as arguments to the ```Print``` function. The tag takes two arguments:
+
+1. Label  - column header (string)
+2. Order  - print order of column (int)
+
+Example:
 ```go
 package main
 
