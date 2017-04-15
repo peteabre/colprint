@@ -12,7 +12,7 @@ slices/arrays of structs. You just have have to add the colprint tag to the fiel
 
 Installation
 ============
-Using Colprint is easy. First, use go get to install the latest version of the library. 
+Using Colprint is easy. First, use ```go get``` to install the latest version of the library. 
 ```bash
 $ go get github.com/peteabre/colprint
 ```
