@@ -29,17 +29,23 @@ func Print(s interface{}) error {
 
 // Fprint prints struct or slice to provided io.Writer using provided config.
 // If config is nil, default config will be used.
-func Fprint(w io.Writer, s interface{}, c... *Config) error {
+func Fprint(w io.Writer, s interface{}, c ... *Config) error {
 	var conf *Config
 	if len(c) > 0 {
 		conf = c[0]
 	}
 	cp := cPrinter{config: mergeConfig(createDefaultConfig(), conf)}
-	kind := reflect.TypeOf(s).Kind()
+	val := reflect.ValueOf(s)
+	kind := val.Kind()
+
+	// If its a pointer, do an indirect...
+	if kind == reflect.Ptr {
+		val = reflect.Indirect(reflect.ValueOf(s))
+		kind = val.Kind()
+	}
 
 	// Check if s is a slice/array or not
 	if kind == reflect.Slice || kind == reflect.Array {
-		val := reflect.ValueOf(s)
 		// add each item in slice to cPrinter
 		for i := 0; i < val.Len(); i ++ {
 			if err := cp.add(val.Index(i).Interface()); err != nil {
@@ -48,7 +54,7 @@ func Fprint(w io.Writer, s interface{}, c... *Config) error {
 		}
 	} else {
 		// add the item to cPrinter
-		if err := cp.add(s); err != nil {
+		if err := cp.add(val.Interface()); err != nil {
 			return err
 		}
 	}

@@ -138,6 +138,26 @@ func (s *UnitTests) TestPrint() {
 	})
 }
 
+func (s *UnitTests) TestPrint_PointerArrayArg() {
+	persons := &[]Person{
+		{
+			FirstName: "Ola",
+			LastName:  "Nordmann",
+			Age:       35,
+			Groups:    []string{"group1", "group2", "group3", "group4"},
+		},
+		{
+			FirstName: "Kari",
+			LastName:  "Nordmann",
+			Age:       37,
+			Groups:    []string{"group1", "group2", "group3"},
+		},
+	}
+	s.NotPanics(func() {
+		s.NoError(Print(persons))
+	})
+}
+
 func (s *UnitTests) TestFPrint() {
 	age := 40
 	d := DummyData{Age: &age, Name: "name", Description: "description", Version: float32(35)}
