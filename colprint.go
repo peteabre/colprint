@@ -14,6 +14,12 @@ import (
 
 const TagName = "colprint"
 
+const (
+	TagValueEmpty    = ""
+	TagValueSkip     = "-"
+	TagValueTraverse = "=>"
+)
+
 // Config holds configuration used when printing columns
 type Config struct {
 	// MaxPrintedSliceItems represents the maximum number og slice items to list.
@@ -65,9 +71,9 @@ func Fprint(w io.Writer, s interface{}, c ... *Config) error {
 
 // column represents a column that will be printed by cPrinter
 type column struct {
-	fieldName string
-	label     string
-	order     int
+	fieldIndex *[]int
+	label      string
+	order      int
 }
 
 // columns is a sortable list of column structs
@@ -115,7 +121,8 @@ func (cp *cPrinter) add(s interface{}) error {
 	// Add values
 	for _, col := range cp.cols {
 		v := reflect.ValueOf(s)
-		val := cp.valueOf(v.FieldByName(col.fieldName).Interface())
+
+		val := cp.valueOf(v.FieldByIndex(*col.fieldIndex).Interface())
 		cp.values[col] = append(cp.values[col], val)
 	}
 	cp.itemCount++
@@ -162,27 +169,48 @@ func (cp *cPrinter) initColumn(col column) {
 }
 
 // findColumns extracts which columns should be printed. Returns an error if any field contains a incomplete tag.
-func (cp *cPrinter) findColumns(s interface{}) (columns, error) {
+func (cp *cPrinter) findColumns(s interface{}, fieldIndex ... int) (columns, error) {
 	v := reflect.ValueOf(s)
+	if v.Kind() == reflect.Ptr {
+		v = reflect.Indirect(v)
+	}
+
 	cols := make(columns, 0)
 	for i := 0; i < v.NumField(); i++ {
+		fIndex := append(fieldIndex, i)
 		field := v.Type().Field(i)
 		tag := field.Tag.Get(TagName)
 
-		if tag == "" || tag == "-" {
+		if tag == TagValueEmpty || tag == TagValueSkip {
 			continue
+		} else if tag == TagValueTraverse {
+			val := reflect.ValueOf(v.FieldByIndex([]int{i}).Interface())
+			if val.Kind() == reflect.Ptr {
+				val = reflect.Indirect(v.FieldByIndex([]int{i}))
+			}
+			if val.Kind() == reflect.Struct {
+				subCols, err := cp.findColumns(v.FieldByIndex([]int{i}).Interface(), fIndex...)
+				if err != nil {
+					return nil, err
+				}
+				for _, col := range subCols {
+					cols = append(cols, col)
+
+				}
+				continue
+			}
 		}
 		tagVals := strings.Split(tag, ",")
 
 		switch len(tagVals) {
 		case 1:
-			cols = append(cols, column{field.Name, tagVals[0], math.MaxInt32})
+			cols = append(cols, column{&fIndex, tagVals[0], math.MaxInt32})
 		case 2:
 			order, err := strconv.Atoi(tagVals[1])
 			if err != nil {
 				return nil, fmt.Errorf("Invalid order on field %s", field.Name)
 			}
-			cols = append(cols, column{field.Name, tagVals[0], order})
+			cols = append(cols, column{&fIndex, tagVals[0], order})
 		}
 	}
 	sort.Sort(cols)

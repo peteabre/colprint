@@ -28,20 +28,20 @@ func (s *UnitTests) TestColumns_Len() {
 
 func (s *UnitTests) TestColumns_Swap() {
 	cols := make(columns, 2)
-	col1 := column{fieldName: "Name1", label: "Label1", order: 1}
-	col2 := column{fieldName: "Name2", label: "Label2", order: 2}
+	col1 := column{fieldIndex: &[]int{}, label: "Label1", order: 1}
+	col2 := column{fieldIndex: &[]int{}, label: "Label2", order: 2}
 	cols[0] = col1
 	cols[1] = col2
 
 	cols.Swap(0, 1)
-	s.True(cols[0] == col2)
-	s.True(cols[1] == col1)
+	s.True(cols[0].label == col2.label)
+	s.True(cols[1].label == col1.label)
 }
 
 func (s *UnitTests) TestColumns_Less() {
 	cols := make(columns, 2)
-	col1 := column{fieldName: "Name1", label: "Label1", order: 10}
-	col2 := column{fieldName: "Name2", label: "Label2", order: 20}
+	col1 := column{fieldIndex: &[]int{}, label: "Label1", order: 10}
+	col2 := column{fieldIndex: &[]int{}, label: "Label2", order: 20}
 	cols[0] = col1
 	cols[1] = col2
 	s.True(cols.Less(0, 1))
@@ -64,7 +64,7 @@ func (s *UnitTests) TestCPrinter_init() {
 func (s *UnitTests) TestCPrinter_initColumn() {
 	cp := cPrinter{}
 	cp.init()
-	col := column{"name", "label", 2}
+	col := column{&[]int{}, "label", 2}
 	val := cp.values[col]
 	s.Nil(val)
 	cp.initColumn(col)
@@ -174,6 +174,52 @@ func (s *UnitTests) TestFPrint() {
 	})
 }
 
+func (s *UnitTests) TestFPrint_PointerArg() {
+	age := 40
+	d := &DummyData{Age: &age, Name: "name", Description: "description", Version: float32(35)}
+
+	s.NotPanics(func() {
+		s.NoError(Fprint(os.Stdout, d))
+	})
+}
+
+func (s *UnitTests) TestPrint_WithComposition() {
+	type A struct {
+		Name string `colprint:"Name,1"`
+	}
+
+	type B struct {
+		A `colprint:"=>"`
+		Date string `colprint:"Date,2"`
+	}
+
+	type C struct {
+		*B `colprint:"=>"`
+		Description string `colprint:"Desc,1"`
+	}
+
+	s.NoError(Print(C{B: &B{Date: "29.03.2017", A: A{Name: "Kari Nordmann"}}, Description:"desc"}))
+}
+
+func (s *UnitTests) TestPrint_CompositionWithErrors() {
+	type A struct {
+		Name string `colprint:"Name,1"`
+	}
+
+	type B struct {
+		A `colprint:"=>"`
+		Errornous `colprint:"=>"`
+		Date string `colprint:"Date,2"`
+	}
+
+	type C struct {
+		*B `colprint:"=>"`
+		Description string `colprint:"Desc,1"`
+	}
+
+	s.Error(Print(C{B: &B{Date: "29.03.2017", A: A{Name: "Kari Nordmann"}}, Description:"desc"}))
+}
+
 type Errornous struct {
 	Error error `colprint:"Error,a"`
 }
@@ -193,6 +239,8 @@ type Person struct {
 	Groups    []string  `colprint:"Groups,4"`
 	Address   string    `colprint:""`
 	Address2  string    `colprint:"-"`
-	Spouse    *Person   `colprint:"Spouse"`
-	Data      DummyData `colprint:"Data"`
+	Data      DummyData `colprint:"=>"`
+	Data2	  DummyData `colprint:"Data"`
 }
+
+
