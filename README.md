@@ -46,7 +46,3 @@ First name  Last name  Age
 Ola         Nordmann   35
 Kari        Nordmann   37
 ```
-
-Limitations
-===========
-* Supports only fields of primitive types.
