@@ -6,9 +6,9 @@ Easy column formatted printing of structs and slices/arrays of structs in golang
 [![Build Status](https://travis-ci.org/peteabre/colprint.svg)](https://travis-ci.org/peteabre/colprint)
 [![GoDoc](https://godoc.org/github.com/peteabre/colprint?status.svg)](https://godoc.org/github.com/peteabre/colprint)
 
-Colprint is a small go package to help build CLI appliactions where you want to list items in 
-human readable form in formatted columns. Colprint builds on [Columnize](https://github.com/ryanuber/columnize) and adds functionality to easy print structs and 
-slices/arrays of structs.
+Colprint is a small Go package to help build CLI appliactions where you want to list items in 
+human readable form in formatted columns. Colprint builds on [Columnize](https://github.com/ryanuber/columnize), and adds functionality to easy print structs and 
+slices/arrays of structs. You just have have to add the colprint tag to the fields you want to print.
 
 Small example:
 ```go
@@ -39,7 +39,7 @@ func main()  {
 }
 ```
 
-As you can see you can simply pass a slice/array and the result will be:
+As you can see, if you have a tagged struct, you can simply pass a slice/array and the result will be:
 
 ```
 First name  Last name  Age
