@@ -108,20 +108,17 @@ func (cp *cPrinter) add(s interface{}) error {
 	// Init columns if it's not already done
 	if cp.cols == nil {
 		cp.init()
-		cols, err := cp.findColumns(s)
+		err := cp.findColumns(s)
 		if err != nil {
 			return err
 		}
-		cp.cols = cols
-
-		for _, col := range cols {
+		for _, col := range cp.cols {
 			cp.initColumn(col)
 		}
 	}
 	// Add values
 	for _, col := range cp.cols {
 		v := reflect.ValueOf(s)
-
 		val := cp.valueOf(v.FieldByIndex(*col.fieldIndex).Interface())
 		cp.values[col] = append(cp.values[col], val)
 	}
@@ -159,7 +156,7 @@ func (cp *cPrinter) fprint(w io.Writer) {
 
 // init initializes the array containing columns, and the map containing the values for each column.
 func (cp *cPrinter) init() {
-	cp.cols = make([]column, 0)
+	cp.cols = columns{}
 	cp.values = make(map[column][]string)
 }
 
@@ -168,53 +165,67 @@ func (cp *cPrinter) initColumn(col column) {
 	cp.values[col] = make([]string, 0)
 }
 
-// findColumns extracts which columns should be printed. Returns an error if any field contains a incomplete tag.
-func (cp *cPrinter) findColumns(s interface{}, fieldIndex ... int) (columns, error) {
+// findColumns extracts which columns should be printed and adds them to columns. Returns an error if any field
+// contains a incomplete tag.
+func (cp *cPrinter) findColumns(s interface{}, fieldIndex ... int) error {
 	v := reflect.ValueOf(s)
 	if v.Kind() == reflect.Ptr {
 		v = reflect.Indirect(v)
 	}
 
-	cols := make(columns, 0)
 	for i := 0; i < v.NumField(); i++ {
 		fIndex := append(fieldIndex, i)
 		field := v.Type().Field(i)
 		tag := field.Tag.Get(TagName)
-
-		if tag == TagValueEmpty || tag == TagValueSkip {
-			continue
-		} else if tag == TagValueTraverse {
-			val := reflect.ValueOf(v.FieldByIndex([]int{i}).Interface())
-			if val.Kind() == reflect.Ptr {
-				val = reflect.Indirect(v.FieldByIndex([]int{i}))
+		switch tag {
+		case TagValueEmpty, TagValueSkip:
+			// Do nothing
+		case TagValueTraverse:
+			if err := cp.traverseStruct(v.FieldByIndex([]int{i}), fIndex...); err != nil {
+				return err
 			}
-			if val.Kind() == reflect.Struct {
-				subCols, err := cp.findColumns(v.FieldByIndex([]int{i}).Interface(), fIndex...)
-				if err != nil {
-					return nil, err
-				}
-				for _, col := range subCols {
-					cols = append(cols, col)
-
-				}
-				continue
+		default:
+			if err := cp.appendColumn(tag, field, &fIndex); err != nil {
+				return err
 			}
-		}
-		tagVals := strings.Split(tag, ",")
-
-		switch len(tagVals) {
-		case 1:
-			cols = append(cols, column{&fIndex, tagVals[0], math.MaxInt32})
-		case 2:
-			order, err := strconv.Atoi(tagVals[1])
-			if err != nil {
-				return nil, fmt.Errorf("Invalid order on field %s", field.Name)
-			}
-			cols = append(cols, column{&fIndex, tagVals[0], order})
 		}
 	}
-	sort.Sort(cols)
-	return cols, nil
+	sort.Sort(cp.cols)
+	return nil
+}
+
+// appendColumn appends a tagged field to the list of columns.
+func (cp *cPrinter) appendColumn(tag string, field reflect.StructField, fieldIndex *[]int) error {
+	args := strings.Split(tag, ",")
+	switch len(args) {
+	case 1:
+		cp.cols = append(cp.cols, column{fieldIndex, args[0], math.MaxInt32})
+	case 2:
+		order, err := strconv.Atoi(args[1])
+		if err != nil {
+			return fmt.Errorf("Invalid order on field %s", field.Name)
+		}
+		cp.cols = append(cp.cols, column{fieldIndex, args[0], order})
+	default:
+		return fmt.Errorf("Invalid number of tag arguments on field %s", field.Name)
+	}
+	return nil
+}
+
+// traverseStruct traverses field of kind reflect.Struct and finds columns
+func (cp *cPrinter) traverseStruct(v reflect.Value, fieldIndex ... int) error {
+	val := reflect.ValueOf(v.Interface())
+	if val.Kind() == reflect.Ptr {
+		val = reflect.Indirect(v)
+	}
+	if val.Kind() == reflect.Struct {
+		err := cp.findColumns(v.Interface(), fieldIndex...)
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
 }
 
 // valueOf returns a string representation of a field.
