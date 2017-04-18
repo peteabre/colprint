@@ -10,6 +10,7 @@ import (
 	"math"
 	"sort"
 	"github.com/ryanuber/columnize"
+	"bytes"
 )
 
 const TagName = "colprint"
@@ -26,6 +27,12 @@ type Config struct {
 	MaxPrintedSliceItems *int
 	// FloatPrecision represents the precision used when printing floats.
 	FloatPrecision *int
+}
+// Sprint is a convenience method for creating a string from a struct or slice of structs using default config
+func Sprint(s interface{}) (string, error) {
+	buf := new(bytes.Buffer)
+	err := Fprint(buf, s)
+	return buf.String(), err
 }
 
 // Print prints a struct or slice of structs to stdout using default config

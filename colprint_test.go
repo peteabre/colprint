@@ -183,7 +183,7 @@ func (s *UnitTests) TestFPrint_PointerArg() {
 	})
 }
 
-func (s *UnitTests) TestPrint_WithComposition() {
+func (s *UnitTests) TestSprint_WithComposition() {
 	type A struct {
 		Name string `colprint:"Name,1"`
 	}
@@ -197,8 +197,9 @@ func (s *UnitTests) TestPrint_WithComposition() {
 		*B `colprint:"=>"`
 		Description string `colprint:"Desc,1"`
 	}
-
-	s.NoError(Print(C{B: &B{Date: "29.03.2017", A: A{Name: "Kari Nordmann"}}, Description:"desc"}))
+	val, err := Sprint(C{B: &B{Date: "29.03.2017", A: A{Name: "Kari Nordmann"}}, Description:"desc"})
+	s.NoError(err)
+	s.NotEmpty(val)
 }
 
 func (s *UnitTests) TestPrint_CompositionWithErrors() {
