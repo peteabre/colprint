@@ -119,6 +119,9 @@ func (cp *cPrinter) add(s interface{}) error {
 	// Add values
 	for _, col := range cp.cols {
 		v := reflect.ValueOf(s)
+		if v.Kind() == reflect.Ptr {
+			v = reflect.Indirect(v)
+		}
 		val := cp.valueOf(v.FieldByIndex(*col.fieldIndex).Interface())
 		cp.values[col] = append(cp.values[col], val)
 	}
