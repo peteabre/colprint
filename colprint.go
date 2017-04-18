@@ -154,7 +154,7 @@ func (cp *cPrinter) fprint(w io.Writer) {
 		str = append(str, vals)
 	}
 	// Print to given Writer
-	fmt.Fprint(w, columnize.SimpleFormat(str)+"\n")
+	fmt.Fprint(w, columnize.SimpleFormat(str))
 }
 
 // init initializes the array containing columns, and the map containing the values for each column.
