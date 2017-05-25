@@ -1,5 +1,5 @@
-hash: 41acc766e46ab2d416f88eacedf271ca1879e0b66052d29e47ff550bf6bd5dfd
-updated: 2017-04-10T21:26:14.753475511+02:00
+hash: 23a64a5fe6cc18164f4af5c281ed0621b1fc9469089d7b21654b30e6da9949ed
+updated: 2017-05-25T11:25:43.718629125+02:00
 imports:
 - name: github.com/ryanuber/columnize
   version: 983d3a5fab1bf04d1b412465d2d9f8430e2e917e

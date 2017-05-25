@@ -1,4 +1,4 @@
-package: .
+package: github.com/peteabre/colprint
 import:
 - package: github.com/ryanuber/columnize
   version: ~2.1.0
